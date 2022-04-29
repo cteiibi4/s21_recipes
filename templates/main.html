@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+</head>
+<body>
+<h1> {{name}}</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">Название</th>
+            <th scope="col">Дата</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for recipe in recipes %}
+        <tr>
+            <th scope="row">{{recipe.id}}</th>
+            <td><a href="{{reverse_url('recipe')}}">{{recipe.name}}</a>></td>
+            <td>{{recipe.date}}</td>
+            <td><button type="button" class="btn btn-danger" id="{{recipe.id}}">удалить</button></td>>
+        </tr>
+        {% end %}
+    </tbody>
+</table>
+<button type="button" class="btn btn-primary">Добавить</button>
+</body>
+</html>
