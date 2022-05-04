@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date, create_engine
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date, Boolean, create_engine
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from common import BASE
@@ -14,6 +14,7 @@ class Recipe(Base):
     name = Column('name', String)
     date = Column('date', Date)
     images = relationship('Image', back_populates='recipes')
+    hidden = Column('hiden', Boolean)
 
     def __init__(self, name, date):
         self.name = name
