@@ -13,7 +13,7 @@ class Recipe(Base):
     id = Column('id', Integer, primary_key=True, unique=True)
     name = Column('name', String)
     date = Column('date', Date)
-    images = relationship('Image', back_populates='recipes')
+    images = relationship('Image', back_populates='recipe')
     hidden = Column('hiden', Boolean)
 
     def __init__(self, name, date):

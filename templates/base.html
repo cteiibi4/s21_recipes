@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>s21_{{title}}</title>
+    <link href="{{ static_url('css/bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ static_url('css/my_style.css') }}" rel="stylesheet"
+    <script src="{{ static_url('js/bootstrap.bundle.js' )}}"></script>
+</head>
+<body>
+    <div class="main">
+        <div class="header">
+            <h2 class="header_name"><a href="{{ reverse_url('main') }}">s21_admin</a></h2>
+        </div>
+        <div class="content">
+            {% block content %}
+            {% end %}
+        </div>
+    </div>
+</body>
+</html>
