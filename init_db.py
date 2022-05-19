@@ -14,7 +14,7 @@ class Recipe(Base):
     name = Column('name', String)
     date = Column('date', Date)
     images = relationship('Image', back_populates='recipe')
-    hidden = Column('hiden', Boolean)
+    hidden = Column('hidden', Boolean)
 
     def __init__(self, name, date):
         self.name = name

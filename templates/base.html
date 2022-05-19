@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>s21_{{title}}</title>
     <link href="{{ static_url('css/bootstrap.css') }}" rel="stylesheet">
-    <link href="{{ static_url('css/my_style.css') }}" rel="stylesheet"
+    <link href="{{ static_url('css/my_style.css') }}" rel="stylesheet">
     <script src="{{ static_url('js/bootstrap.bundle.js' )}}"></script>
+    {% block head_js %}
+    {% end %}
 </head>
 <body>
     <div class="main">

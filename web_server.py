@@ -1,6 +1,9 @@
 import os
+import json
 import tornado.ioloop
 import tornado.web
+import tornado.httputil
+import tornado.escape
 from tornado.web import url
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select
@@ -25,9 +28,12 @@ class AddRecipeHandler(tornado.web.RequestHandler):
         self.render("add_recipe.html", title="Add recipe")
 
     def post(self):
-        print(self.request.body)
-        print(self.request)
-        self.render("add_recipe.html", title="Succes")
+        print(self.request.files)
+        print(self.get_argument("date"))
+        print(self.get_argument("name"))
+        print(self.get_argument("file"))
+        # print(request_payload)
+        self.render("add_recipe.html", title="Success")
 
 def make_app():
 
