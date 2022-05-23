@@ -7,18 +7,19 @@ import tornado.escape
 from tornado.web import url
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select
+from sqlalchemy.orm import sessionmaker
 from common import BASE
-from init_db import Recipe
+from init_db import Recipe, Image
 
 BASE_DIR = os.path.dirname(__file__)
 engine = create_engine(f'sqlite:///{BASE}', echo=True)
 conn = engine.connect()
-
+Session = sessionmaker(bind=engine)
+session = Session()
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        s = select(Recipe).order_by(Recipe.id)
-        recipes = conn.execute(s)
+        recipes = session.query(Recipe).order_by(Recipe.id)
         self.render("main.html", title="Каталог", name="Список рецептов", recipes=recipes)
 
 
@@ -28,11 +29,17 @@ class AddRecipeHandler(tornado.web.RequestHandler):
         self.render("add_recipe.html", title="Add recipe")
 
     def post(self):
-        print(self.request.files)
-        print(self.get_argument("date"))
-        print(self.get_argument("name"))
-        print(self.get_argument("file"))
-        # print(request_payload)
+        name = self.get_argument("name")
+        date = self.get_argument("date") if self.get_argument("date") else None
+        images = self.request.files
+        recipe = Recipe(name, date)
+        session.add(recipe)
+        i = 0
+        for image in images:
+            i += 1
+            name = str(recipe.id) + str(i)
+            # with open name:
+            #     name.write(image['body'])
         self.render("add_recipe.html", title="Success")
 
 def make_app():

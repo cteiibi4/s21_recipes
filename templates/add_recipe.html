@@ -1,24 +1,19 @@
 {% extends "base.html" %}
 {% block head_js %}
 <script type="text/javascript">
-function validate(){
-	let valid = true;
-	let name=document.forms["recipe"]["name"].value;
-    console.log(name)
-    if (name == ""){
-        document.forms["recipe"]["name"].classList.add(".is-invalid")
-        valid = false;
-    } else {
-        document.forms["recipe"]["name"].classList.add(".is-valid")
-    }
-    return valid;
+function addImage() {
+    let count = $(".image").length + 1;
+    $(".btn-add").before("<div class='input-group mb-3 image'><input type='file' class='form-control' id='file' name='file" + count + "' required><button type='button' class='btn btn-danger' onclick='removeImage($(this))'>-</button></div>");
+};
+function removeImage(btn) {
+    $(btn).parent().remove();
 }
 </script>
 {% end %}
 {% block content %}
     <div class="form_add">
         <h3>Добавить рецепт</h3>
-        <form action="{{ reverse_url('add_recipe') }}" method="post" onsubmit="return validate()" name="recipe" class="needs-validation">
+        <form enctype="multipart/form-data" action="{{ reverse_url('add_recipe') }}" method="post" name="recipe" class="needs-validation">
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="name">Название</span>
                 <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="name" required>
@@ -27,8 +22,11 @@ function validate(){
                 <span class="input-group-text" id="date">Дата публикации рецепта</span>
                 <input type="date" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="date">
             </div>
-            <div class="input-group mb-3">
-              <input type="file" class="form-control" id="file-1" name="file" required>
+            <div class="input-group mb-3 image">
+                <input type="file" class="form-control" id="file" name="file1" required>
+            </div>
+            <div class="input-group mb-3 btn-add">
+                <button type="button" class="btn btn-success" onclick="addImage()">Добавить картинку</button>
             </div>
             <div>
                 <button class="btn btn-primary" type="submit">Добавить</button>
