@@ -34,12 +34,16 @@ class AddRecipeHandler(tornado.web.RequestHandler):
         images = self.request.files
         recipe = Recipe(name, date)
         session.add(recipe)
+        path = os.path.join(BASE_DIR, 'static', 'img')
         i = 0
         for image in images:
             i += 1
-            name = str(recipe.id) + str(i)
-            # with open name:
-            #     name.write(image['body'])
+            extension = image["name"].split(".")[-1]
+            name = str(recipe.id) + str(i) + "." + extension
+            with open(os.path.join(path, name), "wb"):
+                name.write(image['body'])
+            img = Image(name)
+            recipe.images.append(img)
         self.render("add_recipe.html", title="Success")
 
 def make_app():
