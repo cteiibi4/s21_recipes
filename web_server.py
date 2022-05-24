@@ -64,10 +64,29 @@ class SuccessAddRecipeHandler(tornado.web.RequestHandler):
 
 
 class RecipeHandler(tornado.web.RequestHandler):
-    def get(self, id):
-        recipe_id = id
+    def get(self, recipe_id):
         recipe = session.query(Recipe).get(recipe_id)
         self.render("recipe.html", title=recipe.name, recipe=recipe)
+
+    def post(self, recipe_id):
+        name = self.get_argument("name")
+        a = self.get_argument("image-id")
+        recipe = session.query(Recipe).get(recipe_id)
+        self.render("recipe.html", title="asdasdas", recipe=recipe)
+
+
+class DeleteImageHandler(tornado.web.RequestHandler):
+    def post(self):
+        try:
+            image_id = self.get_argument("image_id")
+            recipe_id = self.get_argument("recipe_id")
+            recipe = session.query(Recipe).get(recipe_id)
+            image = session.query(Image).get(image_id)
+            recipe.images.remove(image)
+            return
+        except:
+            return
+
 
 def make_app():
 
@@ -75,7 +94,8 @@ def make_app():
         url(r"/", MainHandler, name="main"),
         url(r"/add_recipe/", AddRecipeHandler, name="add_recipe"),
         url(r"/success_add/(.*)", SuccessAddRecipeHandler, name="Success"),
-        url(r"/recipe/(.*)", RecipeHandler, name="recipe")
+        url(r"/recipe/(.*)", RecipeHandler, name="recipe"),
+        url(r"/delete_img/", DeleteImageHandler, name="delete_img")
     ],
         template_path=os.path.join(BASE_DIR, 'templates'),
         static_path=os.path.join(BASE_DIR, 'static'),

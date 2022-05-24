@@ -1,18 +1,4 @@
 {% extends "base.html" %}
-{% block head_js %}
-<script type="text/javascript">
-function addImage() {
-    let count = $(".image").length + 1;
-    $(".btn-add").before("<div class='input-group mb-3 image'><input type='file' class='form-control' id='file' name='file" + count + "' required><button type='button' class='btn btn-danger' onclick='removeImage($(this))'>-</button></div>");
-};
-function removeImage(btn) {
-    $(btn).parent().remove();
-}
-function remove(btn) {
-    $(btn).parent().parent().remove();
-}
-</script>
-{% end %}
 {% block content %}
     <div class="form_add">
         <h3>{{ recipe.name }} {% if recipe.date %} от {{recipe.date}}{% end %}</h3>
@@ -27,12 +13,11 @@ function remove(btn) {
             </div>
             <div class="row input-group input-group-sm mb-3">
             {% for image in recipe.images %}
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <div class="card" style="width: 202;">
-                        <input type="file" class="form-control" id="file" name="{{ image.image }}" required hidden>
-                        <img src="{{ static_url('recipe_img/')}}{{ image.image }}" class="rounded float-start" alt="{{ image.image }}" width="200">
+                        <img src="{{ static_url('recipe_img/')}}{{ image.image }}" class="rounded float-start" alt="{{ image.image }}" name="image-id" width="200">
                         <div class="card-body">
-                            <button type="button" class="btn btn-danger" onclick='remove($(this))'>Удалить</button>
+                            <button type="button" class="btn btn-danger" onclick='remove($(this), {{image.id}}, {{recipe.id}})' id="">Удалить</button>
                         </div>
                     </div>
                 </div>
@@ -52,8 +37,8 @@ function remove(btn) {
                 <textarea class="form-control" id="description" rows="3" name="description" >{% if recipe.description %}{{recipe.description}}{% end %}</textarea>
             </div>
             <div>
-                <button class="btn btn-primary" type="submit">Добавить</button>
-                <a href="{{reverse_url('main')}}"><button type="button" class="btn btn-secondary">Назад</button></a>
+                <button class="btn btn-primary" type="submit">Изменить</button>
+                <a href="{{reverse_url('main')}}" class="btn btn-secondary">Назад</a>
             </div>
             {% module xsrf_form_html() %}
         </form>
