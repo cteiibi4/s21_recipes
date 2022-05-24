@@ -1,26 +1,55 @@
 {% extends "base.html" %}
+{% block head_js %}
+<script type="text/javascript">
+function addImage() {
+    let count = $(".image").length + 1;
+    $(".btn-add").before("<div class='input-group mb-3 image'><input type='file' class='form-control' id='file' name='file" + count + "' required><button type='button' class='btn btn-danger' onclick='removeImage($(this))'>-</button></div>");
+};
+function removeImage(btn) {
+    $(btn).parent().remove();
+}
+function remove(btn) {
+    $(btn).parent().parent().remove();
+}
+</script>
+{% end %}
 {% block content %}
     <div class="form_add">
-        <h3>{{ recipe.name }}</h3>
+        <h3>{{ recipe.name }} {% if recipe.date %} от {{recipe.date}}{% end %}</h3>
         <form enctype="multipart/form-data" action="{{ reverse_url('recipe', recipe.id) }}" method="post" name="recipe" class="needs-validation">
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="name">Название</span>
-                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="name" required>
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="name" required value="{{recipe.name}}">
             </div>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="date">Дата публикации рецепта</span>
-                <input type="date" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="date">
+                <input type="date" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="date" value="{{recipe.date}}">
             </div>
-            <div class="input-group mb-3 image">
-                <input type="file" class="form-control" id="file" name="file1" required>
+            <div class="row input-group input-group-sm mb-3">
+            {% for image in recipe.images %}
+                <div class="col-sm-2">
+                    <div class="card" style="width: 202;">
+                        <input type="file" class="form-control" id="file" name="{{ image.image }}" required hidden>
+                        <img src="{{ static_url('recipe_img/')}}{{ image.image }}" class="rounded float-start" alt="{{ image.image }}" width="200">
+                        <div class="card-body">
+                            <button type="button" class="btn btn-danger" onclick='remove($(this))'>Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            {% end %}
             </div>
-            <div class="input-group mb-3 btn-add">
+            <div class="input-group input-group-sm mb-3 btn-add">
                 <button type="button" class="btn btn-success" onclick="addImage()">Добавить картинку</button>
             </div>
-            <div class="input-group mb-3 btn-add">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" name="hidden" {% if recipe.hidden %} checked {% end %}>
+                <label class="form-check-label" for="flexCheckDefault">
+                    Скрытый
+                </label>
+            </div>
+            <div class="mb-3">
                 <label for="description" class="form-label">Описание</label>
-                <textarea class="form-control" id="description" rows="3" name="description"></textarea>
-
+                <textarea class="form-control" id="description" rows="3" name="description" >{% if recipe.description %}{{recipe.description}}{% end %}</textarea>
             </div>
             <div>
                 <button class="btn btn-primary" type="submit">Добавить</button>
