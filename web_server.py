@@ -1,5 +1,6 @@
 import os
 import json
+import datetime
 import tornado.ioloop
 import tornado.web
 import tornado.httputil
@@ -17,9 +18,10 @@ conn = engine.connect()
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        recipes = session.query(Recipe).order_by(Recipe.id)
+        recipes = session.query(Recipe).order_by(Recipe.id).all()
         self.render("main.html", title="Каталог", name="Список рецептов", recipes=recipes)
 
 
@@ -30,27 +32,42 @@ class AddRecipeHandler(tornado.web.RequestHandler):
 
     def post(self):
         name = self.get_argument("name")
-        date = self.get_argument("date") if self.get_argument("date") else None
+        request_date = self.get_argument("date") if self.get_argument("date") else None
+        date = None
+        if request_date:
+            rough_date = request_date.split("-")
+            date = datetime.datetime(int(rough_date[0]), int(rough_date[1]), int(rough_date[2]))
         images = self.request.files
         recipe = Recipe(name, date)
         session.add(recipe)
-        path = os.path.join(BASE_DIR, 'static', 'img')
+        session.commit()
+        path = os.path.join(BASE_DIR, 'static', 'recipe_img')
         i = 0
         for image in images:
+            img = images[image][0]
             i += 1
-            extension = image["name"].split(".")[-1]
-            name = str(recipe.id) + str(i) + "." + extension
-            with open(os.path.join(path, name), "wb"):
-                name.write(image['body'])
-            img = Image(name)
-            recipe.images.append(img)
-        self.render("add_recipe.html", title="Success")
+            extension = img["filename"].split(".")[-1]
+            name = str(recipe.id) + "-" + str(i) + "." + extension
+            filename = os.path.join(path, name)
+            with open(filename, "wb") as f:
+                f.write(img['body'])
+            img_obj = Image(name)
+            recipe.images.append(img_obj)
+        session.commit()
+        self.render("success_add.html", title="Success")
+
+
+class SuccessAddRecipeHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("success_add.html", title="Успешное добавление")
+
 
 def make_app():
 
     return tornado.web.Application([
         url(r"/", MainHandler, name="main"),
         url(r"/add_recipe/", AddRecipeHandler, name="add_recipe"),
+        url(r"/success_add", SuccessAddRecipeHandler, name="Success")
     ],
         template_path=os.path.join(BASE_DIR, 'templates'),
         static_path=os.path.join(BASE_DIR, 'static'),

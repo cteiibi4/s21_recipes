@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-4">
+            <h2>Заказ успешно добавлен</h2>
+        </div>
+    </div>
+    <div class="row justify-content-evenly">
+        <div class="col-4">
+            <a href="{{ reverse_url('add_recipe')}}"><button type="button" class="btn btn-secondary">Добавить еще рецепт</button></a>
+        </div>
+        <div class="col-4">
+            <a href="{{ reverse_url('main')}}"><button type="button" class="btn btn-primary">В каталог</button></a>
+        </div>
+    </div>
+</div>
+{% end %}

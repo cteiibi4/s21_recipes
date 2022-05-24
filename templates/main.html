@@ -6,19 +6,27 @@
         <tr>
             <th scope="col">id</th>
             <th scope="col">Название</th>
-            <th scope="col">Дата</th>
-            <th scope="col">Скрытый</th>
-            <th scope="col">Удалить</th>
+            <th scope="col" class="text-center">Дата</th>
+            <th scope="col" class="text-center">Видимость</th>
         </tr>
     </thead>
     <tbody>
         {% for recipe in recipes %}
         <tr>
             <th scope="row">{{recipe.id}}</th>
-            <td><a href="{{reverse_url('recipe')}}">{{recipe.name}}</a>></td>
-            <td>{{recipe.date}}</td>
-            <td>{{ recipe.hidden}}</td>
-            <td><button type="button" class="btn btn-danger" id="{{recipe.id}}">удалить</button></td>>
+            <td>{{recipe.name}}</td>
+            <td class="text-center">{% if recipe.date == None %}
+                -
+                {% else %}
+                {{recipe.date}}
+                {% end %}
+            </td>
+            <td class="text-center">{% if recipe.hidden == False %}
+                <img src="{{ static_url('img/visible.png' )}}">
+                {% else %}
+                <img src="{{ static_url('img/no-visible.png' )}}">
+                {% end %}
+            </td>
         </tr>
         {% end %}
     </tbody>
