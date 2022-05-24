@@ -15,10 +15,12 @@ class Recipe(Base):
     date = Column('date', Date)
     images = relationship('Image', back_populates='recipe')
     hidden = Column('hidden', Boolean, default=False)
+    description = Column('description', String)
 
-    def __init__(self, name, date):
+    def __init__(self, name, date, description=None):
         self.name = name
         self.date = date
+        self.description = description
 
 
 class Image(Base):

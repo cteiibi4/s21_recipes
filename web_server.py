@@ -32,13 +32,14 @@ class AddRecipeHandler(tornado.web.RequestHandler):
 
     def post(self):
         name = self.get_argument("name")
+        description = self.get_argument("description") if self.get_argument("description") else None
         request_date = self.get_argument("date") if self.get_argument("date") else None
         date = None
         if request_date:
             rough_date = request_date.split("-")
             date = datetime.datetime(int(rough_date[0]), int(rough_date[1]), int(rough_date[2]))
         images = self.request.files
-        recipe = Recipe(name, date)
+        recipe = Recipe(name, date, description)
         session.add(recipe)
         session.commit()
         path = os.path.join(BASE_DIR, 'static', 'recipe_img')
@@ -54,20 +55,27 @@ class AddRecipeHandler(tornado.web.RequestHandler):
             img_obj = Image(name)
             recipe.images.append(img_obj)
         session.commit()
-        self.render("success_add.html", title="Success")
+        self.redirect(f"/success_add/{recipe.name}")
 
 
 class SuccessAddRecipeHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.render("success_add.html", title="Успешное добавление")
+    def get(self, name=None):
+        self.render("success_add.html", title="Успешное добавление", name=name)
 
+
+class RecipeHandler(tornado.web.RequestHandler):
+    def get(self, id):
+        recipe_id = id
+        recipe = session.query(Recipe).get(recipe_id)
+        self.render("recipe.html", title=recipe.name, recipe=recipe)
 
 def make_app():
 
     return tornado.web.Application([
         url(r"/", MainHandler, name="main"),
         url(r"/add_recipe/", AddRecipeHandler, name="add_recipe"),
-        url(r"/success_add", SuccessAddRecipeHandler, name="Success")
+        url(r"/success_add/(.*)", SuccessAddRecipeHandler, name="Success"),
+        url(r"/recipe/(.*)", RecipeHandler, name="recipe")
     ],
         template_path=os.path.join(BASE_DIR, 'templates'),
         static_path=os.path.join(BASE_DIR, 'static'),

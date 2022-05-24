@@ -14,7 +14,7 @@
         {% for recipe in recipes %}
         <tr>
             <th scope="row">{{recipe.id}}</th>
-            <td>{{recipe.name}}</td>
+            <td><a href="{{reverse_url('recipe', recipe.id)}}">{{recipe.name}}</a></td>
             <td class="text-center">{% if recipe.date == None %}
                 -
                 {% else %}
