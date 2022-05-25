@@ -14,8 +14,8 @@
             <div class="row input-group input-group-sm mb-3">
             {% for image in recipe.images %}
                 <div class="col-sm-3">
-                    <div class="card" style="width: 202;">
-                        <img src="{{ static_url('recipe_img/')}}{{ image.image }}" class="rounded float-start" alt="{{ image.image }}" name="image-id" width="200">
+                    <div class="card text-center" >
+                        <img src="{{ static_url('recipe_img/')}}{{ image.image }}" class="rounded float-center" alt="{{ image.image }}" name="image-id">
                         <div class="card-body">
                             <button type="button" class="btn btn-danger" onclick='remove($(this), {{image.id}}, {{recipe.id}})' id="">Удалить</button>
                         </div>
@@ -27,7 +27,7 @@
                 <button type="button" class="btn btn-success" onclick="addImage()">Добавить картинку</button>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" name="hidden" {% if recipe.hidden %} checked {% end %}>
+                <input class="form-check-input" type="checkbox" id="flexCheckDefault" onclick="changeCheckbox(this)" value={{recipe.hidden}} name="hidden" {% if recipe.hidden %} checked {% end %}>
                 <label class="form-check-label" for="flexCheckDefault">
                     Скрытый
                 </label>
@@ -35,6 +35,12 @@
             <div class="mb-3">
                 <label for="description" class="form-label">Описание</label>
                 <textarea class="form-control" id="description" rows="3" name="description" >{% if recipe.description %}{{recipe.description}}{% end %}</textarea>
+            </div>
+            <div class="alert alert-primary" role="alert" {% if not success %}hidden{% end %}>
+                Успешно обновлено
+            </div>
+            <div class="alert alert-danger" role="alert" {% if not error %}hidden{% end %}>
+              Ошибка: {{ error }}
             </div>
             <div>
                 <button class="btn btn-primary" type="submit">Изменить</button>

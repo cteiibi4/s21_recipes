@@ -6,7 +6,6 @@ function removeImage(btn) {
     $(btn).parent().remove();
 }
 function remove(btn, image_id, recipe_id) {
-//
     $.ajax('/delete_img/', {
     type: 'POST',  // http method
     data: { "image_id": image_id,
@@ -18,4 +17,14 @@ function remove(btn, image_id, recipe_id) {
         console.log(textStatus + ":can't delete image: " + errorMessage);
     }
 });
+}
+function changeCheckbox(checkbox) {
+    let value = $(checkbox).val();
+    let new_value = "";
+    if (value == "False"){
+        new_value = "True";
+    }else{
+        new_value = "False";
+    }
+    $(checkbox).val(new_value);
 }

@@ -2,3 +2,4 @@
 .idea/
 __pycache__/
 /static/recipe_img/
+/s21_base.db
