@@ -1,15 +1,4 @@
 {% extends "base.html" %}
-{% block head_js %}
-<script type="text/javascript">
-function addImage() {
-    let count = $(".image").length + 1;
-    $(".btn-add").before("<div class='input-group mb-3 image'><input type='file' class='form-control' id='file' name='file" + count + "' required><button type='button' class='btn btn-danger' onclick='removeImage($(this))'>-</button></div>");
-};
-function removeImage(btn) {
-    $(btn).parent().remove();
-}
-</script>
-{% end %}
 {% block content %}
     <div class="form_add">
         <h3>Добавить рецепт</h3>
@@ -17,6 +6,10 @@ function removeImage(btn) {
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="name">Название</span>
                 <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="name" required>
+            </div>
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="eng_name">Название на английском</span>
+                <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="eng_name" value="{{recipe.eng_name}}">
             </div>
             <div class="input-group input-group-sm mb-3">
                 <span class="input-group-text" id="date">Дата публикации рецепта</span>

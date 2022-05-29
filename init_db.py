@@ -12,6 +12,7 @@ class Recipe(Base):
     __tablename__ = 'recipes'
     id = Column('id', Integer, primary_key=True, unique=True)
     name = Column('name', String)
+    eng_name = Column('eng_name', String)
     date = Column('date', Date)
     images = relationship('Image', back_populates='recipe')
     hidden = Column('hidden', Boolean, default=False)

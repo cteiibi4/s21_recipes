@@ -51,8 +51,10 @@ class AddRecipeHandler(tornado.web.RequestHandler):
         name = self.get_argument("name")
         description = self.get_argument("description") if self.get_argument("description") else None
         date = get_date(self.get_argument("date")) if self.get_argument("date") else None
+        eng_name = get_date(self.get_argument("eng_name")) if self.get_argument("eng_name") else None
         images = self.request.files
         recipe = Recipe(name, date, description)
+        recipe.eng_name = eng_name
         session.add(recipe)
         session.commit()
         i = 0
@@ -88,6 +90,7 @@ class RecipeHandler(tornado.web.RequestHandler):
             images = self.request.files
             recipe = session.query(Recipe).get(recipe_id)
             recipe.name = self.get_argument("name")
+            recipe.eng_name = get_date(self.get_argument("eng_name")) if self.get_argument("eng_name") else None
             recipe.date = get_date(self.get_argument("date")) if self.get_argument("date") else None
             recipe.description = self.get_argument("description") if self.get_argument("description") else None
             recipe.hidden = hidden
@@ -100,6 +103,7 @@ class RecipeHandler(tornado.web.RequestHandler):
             self.render("recipe.html", title=recipe.name, recipe=recipe, success=True, error=False)
         except Exception as e:
             self.render("recipe.html", title=recipe.name, recipe=recipe, success=True, error=e)
+
 
 class DeleteImageHandler(tornado.web.RequestHandler):
     def post(self):
@@ -128,7 +132,8 @@ class SearchHandler(tornado.web.RequestHandler):
         value = self.get_argument("value")
         reg_exp = "%{}%".format(value)
         search_result = session.query(Recipe)\
-            .filter(or_(Recipe.name.like(reg_exp), Recipe.date.like(reg_exp), Recipe.id.like(reg_exp))).all()
+            .filter(or_(Recipe.name.like(reg_exp), Recipe.date.like(reg_exp),
+                        Recipe.id.like(reg_exp), Recipe.eng_name.like(reg_exp))).all()
         name = f"Результат поиска по: {value}"
         self.render("main.html", title="Результат поиска", name=name, recipes=search_result, count=1,
                     current=1)
@@ -165,6 +170,7 @@ def save_img(recipe, image, number):
         f.write(image['body'])
     img_obj = Image(name)
     recipe.images.append(img_obj)
+
 
 if __name__ == "__main__":
     app = make_app()
