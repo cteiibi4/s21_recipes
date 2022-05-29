@@ -26,7 +26,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 class CatalogHandler(tornado.web.RequestHandler):
     def get(self, page=None):
-        lim = 2
+        lim = 10
         offset = 0
         page = int(page) if page else 1
         offset_page = page - 1
@@ -51,7 +51,7 @@ class AddRecipeHandler(tornado.web.RequestHandler):
         name = self.get_argument("name")
         description = self.get_argument("description") if self.get_argument("description") else None
         date = get_date(self.get_argument("date")) if self.get_argument("date") else None
-        eng_name = get_date(self.get_argument("eng_name")) if self.get_argument("eng_name") else None
+        eng_name = self.get_argument("eng_name") if self.get_argument("eng_name") else None
         images = self.request.files
         recipe = Recipe(name, date, description)
         recipe.eng_name = eng_name
