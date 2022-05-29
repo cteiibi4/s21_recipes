@@ -1,12 +1,13 @@
 import os
 import json
+import math
 import datetime
 import tornado.ioloop
 import tornado.web
 import tornado.httputil
 import tornado.escape
 from tornado.web import url
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.sql import select
 from sqlalchemy.orm import sessionmaker
 from common import BASE
@@ -19,11 +20,26 @@ conn = engine.connect()
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        recipes = session.query(Recipe).order_by(Recipe.id).all()
-        self.render("main.html", title="Каталог", name="Список рецептов", recipes=recipes)
+        self.redirect(f"/catalog/1")
+
+class CatalogHandler(tornado.web.RequestHandler):
+    def get(self, page=None):
+        lim = 2
+        offset = 0
+        page = int(page) if page else 1
+        offset_page = page - 1
+        if page > 0:
+            offset = int(offset_page)*lim
+        recipes = session.query(Recipe).order_by(Recipe.id).offset(offset).limit(lim)
+        count = math.ceil(session.query(Recipe).count()/lim)+1
+        self.render("main.html",
+                    title="Каталог",
+                    name="Список рецептов",
+                    recipes=recipes,
+                    count=count,
+                    current=page)
 
 
 class AddRecipeHandler(tornado.web.RequestHandler):
@@ -106,16 +122,29 @@ class ErrorHandler(tornado.web.RequestHandler):
         self.render("error.html", title="Ошибка")
 
 
+class SearchHandler(tornado.web.RequestHandler):
+
+    def post(self, value = None):
+        value = self.get_argument("value")
+        reg_exp = "%{}%".format(value)
+        search_result = session.query(Recipe)\
+            .filter(or_(Recipe.name.like(reg_exp), Recipe.date.like(reg_exp), Recipe.id.like(reg_exp))).all()
+        name = f"Результат поиска по: {value}"
+        self.render("main.html", title="Результат поиска", name=name, recipes=search_result, count=1,
+                    current=1)
+
 
 def make_app():
 
     return tornado.web.Application([
         url(r"/", MainHandler, name="main"),
+        url(r"/catalog/(.*)", CatalogHandler, name="catalog"),
         url(r"/add_recipe/", AddRecipeHandler, name="add_recipe"),
         url(r"/success_add/(.*)", SuccessAddRecipeHandler, name="Success"),
         url(r"/recipe/(.*)", RecipeHandler, name="recipe"),
         url(r"/delete_img/", DeleteImageHandler, name="delete_img"),
         url(r"/error/", ErrorHandler, name="error"),
+        url(r"/search/(.*)", SearchHandler, name="search"),
     ],
         template_path=os.path.join(BASE_DIR, 'templates'),
         static_path=os.path.join(BASE_DIR, 'static'),

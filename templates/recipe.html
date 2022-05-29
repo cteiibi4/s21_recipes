@@ -11,6 +11,9 @@
                 <span class="input-group-text" id="date">Дата публикации рецепта</span>
                 <input type="date" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" name="date" value="{{recipe.date}}">
             </div>
+            <div class="input-group input-group-sm mb-3">
+                <label> Просмотры: {{recipe.views}}</label>
+            </div>
             <div class="row input-group input-group-sm mb-3">
             {% for image in recipe.images %}
                 <div class="col-sm-3">
