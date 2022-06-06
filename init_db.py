@@ -40,9 +40,9 @@ class User(Base):
     __tablename__ = 'user'
     user_id = Column(String, primary_key=True, unique=True)
     last_message = Column(String)
-    last_state = Column(String)
+    last_state = Column(Integer, default=0)
 
-    def __init(self, client_id):
+    def __init__(self, client_id):
         self.user_id = client_id
 
 
