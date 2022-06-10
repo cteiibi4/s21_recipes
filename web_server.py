@@ -2,6 +2,7 @@ import os
 import json
 import math
 import datetime
+import asyncio
 import tornado.ioloop
 import tornado.web
 import tornado.httputil
@@ -171,6 +172,11 @@ def save_img(recipe, image, number):
     img_obj = Image(name)
     recipe.images.append(img_obj)
 
+
+def start_server():
+    app = make_app()
+    app.listen(8888)
+    tornado.ioloop.IOLoop.current().start()
 
 if __name__ == "__main__":
     app = make_app()

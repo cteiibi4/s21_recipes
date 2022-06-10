@@ -18,6 +18,7 @@ class Recipe(Base):
     hidden = Column('hidden', Boolean, default=False)
     description = Column('description', String)
     views = Column('views', Integer, default=0)
+    media_group_id = Column('media_group_id', String, default=None)
 
     def __init__(self, name, date, description=None):
         self.name = name
@@ -31,6 +32,7 @@ class Image(Base):
     image = Column(String)
     recipe = relationship('Recipe', back_populates='images')
     recipe_id = Column(String, ForeignKey('recipes.id'))
+    telegram_id = Column(String, unique=True, nullable=True, default=None)
 
     def __init__(self, image):
         self.image = image

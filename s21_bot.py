@@ -1,3 +1,4 @@
+import asyncio
 from aiogram import Bot, Dispatcher, executor, types
 from sqlalchemy import create_engine, or_
 from sqlalchemy.sql import select
@@ -56,8 +57,6 @@ async def send_welcome(message: types.Message):
 @dp.callback_query_handler(lambda c: True if 'catalog' in c.data else False)
 @delete_last_message
 async def catalog(callback_query: types.CallbackQuery):
-    print("+++++")
-    print(callback_query.data)
     user = get_user(user_id=callback_query.from_user['id'])
     count_recipes = session.query(Recipe).count()
     offset = user.last_state
@@ -81,7 +80,6 @@ async def catalog(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda c: True if 'top_10' in c.data else False)
 @delete_last_message
 async def top_10(callback_query: types.CallbackQuery):
-    print(111111)
     user_id = callback_query.from_user['id']
     poll_keyboard = types.InlineKeyboardMarkup(resize_keyboard=True)
     recipes = session.query(Recipe).order_by(Recipe.views).limit(10)
@@ -95,8 +93,6 @@ async def top_10(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda c: True if ('right' or 'left') in c.data else False)
 @delete_last_message
 async def catalog_move(callback_query: types.CallbackQuery):
-    print("555555")
-    print(callback_query.data)
     user = get_user(callback_query.from_user['id'])
     offset = int(user.last_state)
     if 'right' in callback_query.data:
@@ -105,26 +101,25 @@ async def catalog_move(callback_query: types.CallbackQuery):
         user.last_state = offset - LIMIT
     session.commit()
     offset = int(user.last_state)
-    text = f"Каталог\nстраница {int(offset / LIMIT)}"
-    recipes = session.query(Recipe).order_by(Recipe.id).offset(offset).limit(LIMIT)
-    count_recipes = session.query(Recipe).count()
-    poll_keyboard = types.InlineKeyboardMarkup(resize_keyboard=True)
-    for recipe in recipes:
-        poll_keyboard.add(types.InlineKeyboardButton(text=recipe.name, callback_data=f'r_{recipe.id}'))
-    if offset < count_recipes:
-        poll_keyboard.add(types.InlineKeyboardButton(text="Вперед ▶", callback_data=f'rigth'))
-    if offset > LIMIT:
-        poll_keyboard.add(types.InlineKeyboardButton(text="Назад ◀", callback_data=f'left'))
-    msg = await bot.send_message(chat_id=user.user_id, text=text,
-                                 reply_markup=poll_keyboard)
-    return msg
+    # text = f"Каталог\nстраница {int(offset / LIMIT)}"
+    # recipes = session.query(Recipe).order_by(Recipe.id).offset(offset).limit(LIMIT)
+    # count_recipes = session.query(Recipe).count()
+    # poll_keyboard = types.InlineKeyboardMarkup(resize_keyboard=True)
+    # for recipe in recipes:
+    #     poll_keyboard.add(types.InlineKeyboardButton(text=recipe.name, callback_data=f'r_{recipe.id}'))
+    # if offset < count_recipes:
+    #     poll_keyboard.add(types.InlineKeyboardButton(text="Вперед ▶", callback_data=f'rigth'))
+    # if offset > LIMIT:
+    #     poll_keyboard.add(types.InlineKeyboardButton(text="Назад ◀", callback_data=f'left'))
+    # msg = await bot.send_message(chat_id=user.user_id, text=text,
+    #                              reply_markup=poll_keyboard)
+    # return msg
+    return catalog(callback_query)
 
 
 @dp.callback_query_handler(lambda c: True if "r_" in c.data else False)
 @delete_last_message
 async def recipe(callback_query: types.CallbackQuery):
-    print("****")
-    print(callback_query.data)
     recipe_id = callback_query.data[2:]
     user = get_user(callback_query.from_user['id'])
     recipe = session.query(Recipe).get(recipe_id)
@@ -132,9 +127,18 @@ async def recipe(callback_query: types.CallbackQuery):
     images = recipe.images
     poll_keyboard = types.InlineKeyboardMarkup(resize_keyboard=True)
     poll_keyboard.add(types.InlineKeyboardButton(text="Назад ◀", callback_data=f'/catalog'))
-    msg = await bot.send_photo(user.user_id, images,
-                                   caption=caption,
-                                   reply_markup=poll_keyboard)
+    media = types.MediaGroup()
+    for image in images:
+        if images.index(image) == 0:
+            text = recipe.name
+            if recipe.description:
+                text += "\n" + recipe.description
+            media.attach_photo(types.InputFile(image.image), text)
+        else:
+            media.attach_photo(types.InputFile(image.image))
+
+    msg = await bot.send_media_group(chat_id=user.id, media=media)
+    recipe.media_group_id = msg.media_group_id
     return msg
 
 def get_user(user_id):
@@ -149,4 +153,7 @@ def get_user(user_id):
     return user
 
 if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)
+
+def start_bot():
     executor.start_polling(dp, skip_updates=True)
