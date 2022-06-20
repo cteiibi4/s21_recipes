@@ -1,6 +1,7 @@
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date, Boolean, create_engine
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.types import ARRAY
 from common import BASE
 
 engine = create_engine(f'sqlite:///{BASE}', echo=True)
@@ -12,7 +13,6 @@ class Recipe(Base):
     __tablename__ = 'recipes'
     id = Column('id', Integer, primary_key=True, unique=True)
     name = Column('name', String)
-    eng_name = Column('eng_name', String)
     date = Column('date', Date)
     images = relationship('Image', back_populates='recipe')
     hidden = Column('hidden', Boolean, default=False)
@@ -32,7 +32,7 @@ class Image(Base):
     image = Column(String)
     recipe = relationship('Recipe', back_populates='images')
     recipe_id = Column(String, ForeignKey('recipes.id'))
-    telegram_id = Column(String, unique=True, nullable=True, default=None)
+    photo_id = Column(String, unique=True, nullable=True, default=None)
 
     def __init__(self, image):
         self.image = image

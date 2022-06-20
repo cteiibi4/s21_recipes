@@ -11,11 +11,9 @@ from tornado.web import url
 from sqlalchemy import create_engine, or_
 from sqlalchemy.sql import select
 from sqlalchemy.orm import sessionmaker
-from common import BASE
+from common import BASE, IMAGE_PATH, BASE_DIR
 from init_db import Recipe, Image
 
-BASE_DIR = os.path.dirname(__file__)
-IMAGE_PATH = os.path.join(BASE_DIR, 'static', 'recipe_img')
 engine = create_engine(f'sqlite:///{BASE}', echo=True)
 conn = engine.connect()
 Session = sessionmaker(bind=engine)
@@ -52,10 +50,8 @@ class AddRecipeHandler(tornado.web.RequestHandler):
         name = self.get_argument("name")
         description = self.get_argument("description") if self.get_argument("description") else None
         date = get_date(self.get_argument("date")) if self.get_argument("date") else None
-        eng_name = self.get_argument("eng_name") if self.get_argument("eng_name") else None
         images = self.request.files
         recipe = Recipe(name, date, description)
-        recipe.eng_name = eng_name
         session.add(recipe)
         session.commit()
         i = 0
@@ -91,11 +87,10 @@ class RecipeHandler(tornado.web.RequestHandler):
             images = self.request.files
             recipe = session.query(Recipe).get(recipe_id)
             recipe.name = self.get_argument("name")
-            recipe.eng_name = get_date(self.get_argument("eng_name")) if self.get_argument("eng_name") else None
             recipe.date = get_date(self.get_argument("date")) if self.get_argument("date") else None
             recipe.description = self.get_argument("description") if self.get_argument("description") else None
             recipe.hidden = hidden
-            i = recipe.images[-1].image.split(".")[0].split("-")[-1]
+            i = int(recipe.images[-1].image.split(".")[0].split("-")[-1]) if recipe.images else 1
             for image in images:
                 img = images[image][0]
                 i += 1
@@ -103,7 +98,7 @@ class RecipeHandler(tornado.web.RequestHandler):
             session.commit()
             self.render("recipe.html", title=recipe.name, recipe=recipe, success=True, error=False)
         except Exception as e:
-            self.render("recipe.html", title=recipe.name, recipe=recipe, success=True, error=e)
+            self.render("recipe.html", title=recipe.name, recipe=recipe, success=False, error=e)
 
 
 class DeleteImageHandler(tornado.web.RequestHandler):
@@ -134,7 +129,7 @@ class SearchHandler(tornado.web.RequestHandler):
         reg_exp = "%{}%".format(value)
         search_result = session.query(Recipe)\
             .filter(or_(Recipe.name.like(reg_exp), Recipe.date.like(reg_exp),
-                        Recipe.id.like(reg_exp), Recipe.eng_name.like(reg_exp))).all()
+                        Recipe.id.like(reg_exp))).all()
         name = f"Результат поиска по: {value}"
         self.render("main.html", title="Результат поиска", name=name, recipes=search_result, count=1,
                     current=1)
