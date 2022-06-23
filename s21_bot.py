@@ -25,13 +25,13 @@ def delete_last_message(func):
         else:
             message_id = msg.id
             user = get_user(msg.from_user['id'])
+        new_message_id = await func(msg)
         if user.last_message:
             try:
                 for msg_id in user.last_message.split(","):
                     await bot.delete_message(user.user_id, int(msg_id))
             except:
                 pass
-        new_message_id = await func(msg)
         if type(msg) == types.Message:
             await bot.delete_message(user.user_id, message_id)
         user.last_message = new_message_id
